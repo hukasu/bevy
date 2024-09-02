@@ -9,8 +9,8 @@ use bevy::{
     core::Name,
     math::Quat,
     prelude::{
-        AnimationClip, AnimationGraph, AnimationPlayer, AnimationTransitions, BuildWorldChildren,
-        Transform, TransformBundle, VariableCurve,
+        AnimationClip, AnimationGraph, AnimationPlayer, AnimationTransitions, BuildChildren,
+        ChildBuild, Transform, TransformBundle, VariableCurve,
     },
 };
 
