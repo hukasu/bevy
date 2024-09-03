@@ -3,11 +3,11 @@ use std::time::Duration;
 use uuid::Uuid;
 
 use bevy::{
-    animation::{AnimationTarget, AnimationTargetId},
+    animation::{curves::RotationCurve, AnimationTarget, AnimationTargetId},
     app::App,
     asset::{DirectAssetAccessExt, Handle},
     core::Name,
-    math::Quat,
+    math::{curve::UnevenSampleAutoCurve, Quat},
     prelude::{
         AnimationClip, AnimationGraph, AnimationPlayer, AnimationTransitions, BuildChildren,
         ChildBuild, Transform, TransformBundle, VariableCurve,
@@ -34,27 +34,23 @@ fn empty_variable_curve() {
     let mut animation_clip = AnimationClip::default();
     animation_clip.add_curve_to_target(
         root_target_id,
-        VariableCurve {
-            keyframe_timestamps: vec![0., 16.],
-            keyframes: bevy::prelude::Keyframes::Rotation(vec![
-                Quat::default(),
-                Quat::from_euler(
-                    bevy::math::EulerRot::XYZ,
-                    std::f32::consts::FRAC_PI_2,
-                    0.,
-                    0.,
-                ),
-            ]),
-            interpolation: bevy::prelude::Interpolation::Linear,
-        },
+        VariableCurve::Rotation(RotationCurve::SphericalLinear(
+            UnevenSampleAutoCurve::new(vec![
+                (0., Quat::default()),
+                (16., Quat::from_rotation_y(std::f32::consts::FRAC_PI_2)),
+            ])
+            .expect("built"),
+        )),
     );
     animation_clip.add_curve_to_target(
         point_target_id,
-        VariableCurve {
-            keyframe_timestamps: vec![],
-            keyframes: bevy::prelude::Keyframes::Rotation(vec![]),
-            interpolation: bevy::prelude::Interpolation::Linear,
-        },
+        VariableCurve::Rotation(RotationCurve::SphericalLinear(
+            UnevenSampleAutoCurve::new(vec![
+                (0., Quat::default()),
+                (16., Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
+            ])
+            .expect("built"),
+        )),
     );
 
     let animation_clip_handle = app.world_mut().add_asset(animation_clip);
