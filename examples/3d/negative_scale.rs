@@ -3,12 +3,13 @@
 use bevy::{
     app::{App, Startup, Update},
     asset::Assets,
-    color::Color,
-    math::{Dir3, Vec2, Vec3},
+    color::{palettes, Color},
+    math::{Dir3, Quat, Vec2, Vec3},
     pbr::{DirectionalLightBundle, PbrBundle, StandardMaterial},
     prelude::{Camera3dBundle, Commands, Gizmos, Mesh, Plane3d, ResMut, Transform},
     DefaultPlugins,
 };
+use bevy_render::render_resource::Face;
 
 fn main() {
     let mut app = App::new();
@@ -46,35 +47,72 @@ fn spawn_planes(
     let plane = Plane3d::new(Vec3::Z, Vec2::splat(1.));
     let plane_handle = meshes.add(plane);
 
-    let material = StandardMaterial {
-        base_color: Color::WHITE,
-        cull_mode: None,
+    let material_red = StandardMaterial {
+        base_color: palettes::basic::RED.into(),
+        cull_mode: Some(Face::Back),
         ..Default::default()
     };
-    let material_handle = materials.add(material);
+    let material_red_handle = materials.add(material_red);
+    let material_blue = StandardMaterial {
+        base_color: palettes::basic::BLUE.into(),
+        cull_mode: Some(Face::Back),
+        ..Default::default()
+    };
+    let material_blue_handle = materials.add(material_blue);
 
     commands.spawn(PbrBundle {
         mesh: plane_handle.clone(),
-        material: material_handle.clone(),
+        material: material_red_handle.clone(),
         transform: Transform::from_xyz(-2., 2., 0.),
         ..Default::default()
     });
     commands.spawn(PbrBundle {
         mesh: plane_handle.clone(),
-        material: material_handle.clone(),
+        material: material_blue_handle.clone(),
+        transform: Transform::from_xyz(-2., 2., 0.)
+            .with_rotation(Quat::from_rotation_y(std::f32::consts::PI)),
+        ..Default::default()
+    });
+    commands.spawn(PbrBundle {
+        mesh: plane_handle.clone(),
+        material: material_red_handle.clone(),
         transform: Transform::from_xyz(-2., -2., 0.).with_scale(Vec3::new(-1., 1., 1.)),
         ..Default::default()
     });
     commands.spawn(PbrBundle {
         mesh: plane_handle.clone(),
-        material: material_handle.clone(),
+        material: material_blue_handle.clone(),
+        transform: Transform::from_xyz(-2., -2., 0.)
+            .with_rotation(Quat::from_rotation_y(std::f32::consts::PI))
+            .with_scale(Vec3::new(-1., 1., 1.)),
+        ..Default::default()
+    });
+    commands.spawn(PbrBundle {
+        mesh: plane_handle.clone(),
+        material: material_red_handle.clone(),
         transform: Transform::from_xyz(2., 2., 0.).with_scale(Vec3::new(1., -1., 1.)),
         ..Default::default()
     });
     commands.spawn(PbrBundle {
         mesh: plane_handle.clone(),
-        material: material_handle.clone(),
+        material: material_blue_handle.clone(),
+        transform: Transform::from_xyz(2., 2., 0.)
+            .with_rotation(Quat::from_rotation_y(std::f32::consts::PI))
+            .with_scale(Vec3::new(1., -1., 1.)),
+        ..Default::default()
+    });
+    commands.spawn(PbrBundle {
+        mesh: plane_handle.clone(),
+        material: material_red_handle.clone(),
         transform: Transform::from_xyz(2., -2., 0.).with_scale(Vec3::new(1., 1., -1.)),
+        ..Default::default()
+    });
+    commands.spawn(PbrBundle {
+        mesh: plane_handle.clone(),
+        material: material_blue_handle.clone(),
+        transform: Transform::from_xyz(2., -2., 0.)
+            .with_rotation(Quat::from_rotation_y(std::f32::consts::PI))
+            .with_scale(Vec3::new(1., 1., -1.)),
         ..Default::default()
     });
 }
