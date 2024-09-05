@@ -851,6 +851,17 @@ category = "3D Rendering"
 wasm = false
 
 [[example]]
+name = "negative_scale"
+path = "examples/3d/negative_scale.rs"
+doc-scrape-examples = true
+
+[package.metadata.example.negative_scale]
+name = "Negative Scale"
+description = "Behavior of lighting on models flipped with negative scale"
+category = "3D Rendering"
+wasm = true
+
+[[example]]
 name = "tonemapping"
 path = "examples/3d/tonemapping.rs"
 doc-scrape-examples = true
