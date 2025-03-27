@@ -1,17 +1,8 @@
-use bevy_ecs::{
-    component::Component,
-    entity::{hash_map::EntityHashMap, Entity},
-    reflect::ReflectComponent,
-    system::{Query, Res},
-};
-use bevy_math::{ops, Mat4, Vec3A, Vec4};
+use bevy_ecs::{component::Component, entity::hash_map::EntityHashMap, reflect::ReflectComponent};
+use bevy_math::{ops, Mat4};
 use bevy_reflect::{prelude::ReflectDefault, Reflect};
-use bevy_render::camera::{Camera, CameraProjection, Projection};
-use bevy_transform::components::GlobalTransform;
 
-use crate::light::{DirectionalLight, VisibleMeshEntities};
-
-use super::DirectionalLightShadowMap;
+use crate::light::VisibleMeshEntities;
 
 #[derive(Component, Clone, Debug, Default, Reflect)]
 #[reflect(Component, Debug, Default, Clone)]
