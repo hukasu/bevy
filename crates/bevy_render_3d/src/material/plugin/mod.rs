@@ -24,12 +24,13 @@ use crate::{
 };
 
 use super::{
+    bindless::FallbackBindlessResources,
     commands::DrawMaterial,
     material::{
         MaterialPipeline, PreparedMaterial, RenderMaterialInstances,
         SpecializedMaterialPipelineCache,
     },
-    Material, MaterialBindGroupAllocator, MeshMaterial3d,
+    Material, MaterialBindGroupAllocator, MeshMaterial3d, RenderMaterialBindings,
 };
 
 use systems::{
@@ -71,6 +72,10 @@ where
     M::Data: PartialEq + Eq + Hash + Clone,
 {
     fn build(&self, app: &mut App) {
+        if !app.is_plugin_added::<BaseMaterialPlugin>() {
+            app.add_plugins(BaseMaterialPlugin);
+        }
+
         app.configure_sets(
             PostUpdate,
             MaterialSystems::SpecializationCheck.after(AssetEvents),
@@ -160,6 +165,26 @@ where
                 .init_resource::<MaterialPipeline<M>>()
                 .init_resource::<MaterialBindGroupAllocator<M>>();
         }
+    }
+}
+
+struct BaseMaterialPlugin;
+
+impl Plugin for BaseMaterialPlugin {
+    fn build(&self, app: &mut App) {
+        if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
+            // Extract the required data from the main world
+            render_app.init_resource::<RenderMaterialBindings>();
+        }
+    }
+
+    fn finish(&self, app: &mut App) {
+        let Some(render_app) = app.get_sub_app_mut(RenderApp) else {
+            return;
+        };
+
+        // Extract the required data from the main world
+        render_app.init_resource::<FallbackBindlessResources>();
     }
 }
 
