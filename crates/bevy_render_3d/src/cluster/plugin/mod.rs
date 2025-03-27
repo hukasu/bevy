@@ -3,6 +3,7 @@ mod systems;
 use core::marker::PhantomData;
 
 use bevy_app::{App, Plugin, PostUpdate};
+use bevy_asset::{load_internal_asset, weak_handle, Handle};
 use bevy_ecs::{
     entity::Entity,
     query::{QueryData, QueryFilter},
@@ -12,7 +13,7 @@ use bevy_math::{ops, Mat4, Vec2, Vec3A};
 use bevy_render::{
     camera::CameraUpdateSystem,
     primitives::{Aabb, Sphere},
-    render_resource::BufferBindingType,
+    render_resource::{BufferBindingType, Shader},
     renderer::RenderDevice,
     view::{RenderLayers, VisibilitySystems},
     ExtractSchedule, Render, RenderApp, RenderSet,
@@ -28,6 +29,9 @@ use systems::{
     add_clusters, cluster_assignment, extract_clusters, post_cluster_assignment,
     pre_cluster_assignment, prepare_clusters, sort_cluster_assigned_objects,
 };
+
+pub const CLUSTERED_FORWARD_HANDLE: Handle<Shader> =
+    weak_handle!("f8e3b4c6-60b7-4b23-8b2e-a6b27bb4ddce");
 
 pub struct ClusterableObjectPlugin<const O: u8, C: ClusterAssignable>(PhantomData<C>);
 
@@ -57,6 +61,13 @@ struct ClusterPlugin;
 
 impl Plugin for ClusterPlugin {
     fn build(&self, app: &mut App) {
+        load_internal_asset!(
+            app,
+            CLUSTERED_FORWARD_HANDLE,
+            "clustered_forward.wgsl",
+            Shader::from_wgsl
+        );
+
         app.register_type::<ClusterConfig>()
             .init_resource::<GlobalVisibleClusterableObjects>();
 
