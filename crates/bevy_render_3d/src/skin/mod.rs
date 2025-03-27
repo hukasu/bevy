@@ -53,9 +53,16 @@ impl Plugin for SkinPlugin {
 
         if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app
-                .init_resource::<SkinUniforms>()
                 .add_systems(ExtractSchedule, extract_skins)
                 .add_systems(Render, prepare_skins.in_set(RenderSet::PrepareResources));
         }
+    }
+
+    fn finish(&self, app: &mut bevy_app::App) {
+        let Some(render_app) = app.get_sub_app_mut(RenderApp) else {
+            return;
+        };
+
+        render_app.init_resource::<SkinUniforms>();
     }
 }
