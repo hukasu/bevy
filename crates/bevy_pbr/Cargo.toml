@@ -9,14 +9,19 @@ license = "MIT OR Apache-2.0"
 keywords = ["bevy"]
 
 [features]
-webgl = []
-webgpu = []
-pbr_transmission_textures = []
-pbr_multi_layer_material_textures = []
-pbr_anisotropy_texture = []
-experimental_pbr_pcss = []
-pbr_specular_textures = []
-shader_format_glsl = ["bevy_render/shader_format_glsl"]
+webgl = ["bevy_render_3d/webgl"]
+webgpu = ["bevy_render_3d/webgpu"]
+pbr_transmission_textures = ["bevy_render_3d/pbr_transmission_textures"]
+pbr_multi_layer_material_textures = [
+  "bevy_render_3d/pbr_multi_layer_material_textures",
+]
+pbr_anisotropy_texture = ["bevy_render_3d/pbr_anisotropy_texture"]
+experimental_pbr_pcss = ["bevy_render_3d/experimental_pbr_pcss"]
+pbr_specular_textures = ["bevy_render_3d/pbr_specular_textures"]
+shader_format_glsl = [
+  "bevy_render/shader_format_glsl",
+  "bevy_render_3d/shader_format_glsl",
+]
 trace = ["bevy_render/trace"]
 # Enables the meshlet renderer for dense high-poly scenes (experimental)
 meshlet = ["dep:lz4_flex", "dep:range-alloc", "dep:half", "dep:bevy_tasks"]
@@ -42,6 +47,7 @@ bevy_image = { path = "../bevy_image", version = "0.16.0-dev" }
 bevy_math = { path = "../bevy_math", version = "0.16.0-dev" }
 bevy_reflect = { path = "../bevy_reflect", version = "0.16.0-dev" }
 bevy_render = { path = "../bevy_render", version = "0.16.0-dev" }
+bevy_render_3d = { path = "../bevy_render_3d", version = "0.16.0-dev", default-features = false }
 bevy_tasks = { path = "../bevy_tasks", version = "0.16.0-dev", optional = true }
 bevy_transform = { path = "../bevy_transform", version = "0.16.0-dev" }
 bevy_utils = { path = "../bevy_utils", version = "0.16.0-dev" }
@@ -72,7 +78,6 @@ smallvec = "1.6"
 nonmax = "0.5"
 static_assertions = "1"
 tracing = { version = "0.1", default-features = false, features = ["std"] }
-offset-allocator = "0.2"
 
 [lints]
 workspace = true

@@ -1,5 +1,8 @@
 #define_import_path bevy_pbr::pbr_types
 
+#import bevy_render_3d::deferred::types::DeferredFlags
+#import bevy_render_3d::mesh::types::MESH_FLAGS_SHADOW_RECEIVER_BIT
+
 // Since this is a hot path, try to keep the alignment and size of the struct members in mind.
 // You can find the alignment and sizes at <https://www.w3.org/TR/WGSL/#alignment-and-size>.
 struct StandardMaterial {
@@ -65,6 +68,22 @@ const STANDARD_MATERIAL_FLAGS_ALPHA_MODE_ALPHA_TO_COVERAGE: u32   = 3221225472u;
 // ↑ To calculate/verify the values above, use the following playground:
 // https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=7792f8dd6fc6a8d4d0b6b1776898a7f4
 
+fn deferred_flags_from_mesh_material_flags(mesh_flags: u32, mat_flags: u32) -> DeferredFlags {
+    var flags = 0u;
+    flags |= u32((mesh_flags & MESH_FLAGS_SHADOW_RECEIVER_BIT) != 0u) * DEFERRED_MESH_FLAGS_SHADOW_RECEIVER_BIT;
+    flags |= u32((mat_flags & STANDARD_MATERIAL_FLAGS_FOG_ENABLED_BIT) != 0u) * DEFERRED_FLAGS_FOG_ENABLED_BIT;
+    flags |= u32((mat_flags & STANDARD_MATERIAL_FLAGS_UNLIT_BIT) != 0u) * DEFERRED_FLAGS_UNLIT_BIT;
+    return DeferredFlags(flags);
+}
+
+fn mesh_material_flags_from_deferred_flags(deferred_flags: DeferredFlags) -> vec2<u32> {
+    var mat_flags = 0u;
+    var mesh_flags = 0u;
+    mesh_flags |= u32((deferred_flags & DEFERRED_MESH_FLAGS_SHADOW_RECEIVER_BIT) != 0u) * MESH_FLAGS_SHADOW_RECEIVER_BIT;
+    mat_flags |= u32((deferred_flags & DEFERRED_FLAGS_FOG_ENABLED_BIT) != 0u) * STANDARD_MATERIAL_FLAGS_FOG_ENABLED_BIT;
+    mat_flags |= u32((deferred_flags & DEFERRED_FLAGS_UNLIT_BIT) != 0u) * STANDARD_MATERIAL_FLAGS_UNLIT_BIT;
+    return vec2(mesh_flags, mat_flags);
+}
 
 // Creates a StandardMaterial with default values
 fn standard_material_new() -> StandardMaterial {

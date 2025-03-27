@@ -1,4 +1,3 @@
-use crate::{Material, MaterialPipeline, MaterialPipelineKey, MaterialPlugin, MeshMaterial3d};
 use bevy_app::{Plugin, Startup, Update};
 use bevy_asset::{load_internal_asset, weak_handle, Asset, AssetApp, Assets, Handle};
 use bevy_color::{Color, LinearRgba};
@@ -9,6 +8,9 @@ use bevy_render::{
     mesh::{Mesh3d, MeshVertexBufferLayoutRef},
     prelude::*,
     render_resource::*,
+};
+use bevy_render_3d::material::{
+    plugin::MaterialPlugin, Material, MaterialPipeline, MaterialPipelineKey, MeshMaterial3d,
 };
 
 pub const WIREFRAME_SHADER_HANDLE: Handle<Shader> =
@@ -30,7 +32,7 @@ impl Plugin for WireframePlugin {
         load_internal_asset!(
             app,
             WIREFRAME_SHADER_HANDLE,
-            "render/wireframe.wgsl",
+            "shaders/wireframe.wgsl",
             Shader::from_wgsl
         );
 

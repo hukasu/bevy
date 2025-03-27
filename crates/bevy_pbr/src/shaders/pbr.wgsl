@@ -28,7 +28,7 @@
 #endif // OIT_ENABLED
 
 #ifdef FORWARD_DECAL
-#import bevy_pbr::decal::forward::get_forward_decal_info
+#import bevy_render_3d::decal::forward::get_forward_decal_info
 #endif
 
 @fragment
