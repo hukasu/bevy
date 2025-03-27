@@ -87,6 +87,7 @@ symphonia-wav = ["bevy_audio/symphonia-wav"]
 # Shader formats
 shader_format_glsl = [
   "bevy_render/shader_format_glsl",
+  "bevy_render_3d?/shader_format_glsl",
   "bevy_pbr?/shader_format_glsl",
 ]
 shader_format_spirv = ["bevy_render/shader_format_spirv"]
@@ -143,7 +144,10 @@ pbr_anisotropy_texture = [
 ]
 
 # Percentage-closer soft shadows
-experimental_pbr_pcss = ["bevy_pbr?/experimental_pbr_pcss"]
+experimental_pbr_pcss = [
+  "bevy_pbr?/experimental_pbr_pcss",
+  "bevy_render_3d?/experimental_pbr_pcss",
+]
 
 # Specular textures in `StandardMaterial`:
 pbr_specular_textures = [
@@ -157,6 +161,7 @@ webgl = [
   "bevy_anti_aliasing?/webgl",
   "bevy_pbr?/webgl",
   "bevy_render?/webgl",
+  "bevy_render_3d?/webgl",
   "bevy_gizmos?/webgl",
   "bevy_sprite?/webgl",
 ]
@@ -166,6 +171,7 @@ webgpu = [
   "bevy_anti_aliasing?/webgpu",
   "bevy_pbr?/webgpu",
   "bevy_render?/webgpu",
+  "bevy_render_3d?/webgpu",
   "bevy_gizmos?/webgpu",
   "bevy_sprite?/webgpu",
 ]
@@ -332,6 +338,7 @@ libm = [
   "bevy_color?/libm",
   "bevy_input/libm",
   "bevy_input_focus?/libm",
+  "bevy_render_3d?/libm",
   "bevy_math/libm",
   "bevy_transform/libm",
   "bevy_window?/libm",
@@ -418,6 +425,7 @@ bevy_pbr = { path = "../bevy_pbr", optional = true, version = "0.16.0-dev" }
 bevy_picking = { path = "../bevy_picking", optional = true, version = "0.16.0-dev" }
 bevy_remote = { path = "../bevy_remote", optional = true, version = "0.16.0-dev" }
 bevy_render = { path = "../bevy_render", optional = true, version = "0.16.0-dev" }
+bevy_render_3d = { path = "../bevy_render_3d", optional = true, version = "0.16.0-dev" }
 bevy_scene = { path = "../bevy_scene", optional = true, version = "0.16.0-dev" }
 bevy_sprite = { path = "../bevy_sprite", optional = true, version = "0.16.0-dev" }
 bevy_state = { path = "../bevy_state", optional = true, version = "0.16.0-dev", default-features = false, features = [
