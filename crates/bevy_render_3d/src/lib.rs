@@ -105,7 +105,11 @@ impl Default for Render3dPlugin {
 
 impl Plugin for Render3dPlugin {
     fn build(&self, app: &mut bevy_app::App) {
-        app.add_plugins((
+        app.add_plugins(mesh_pipeline::MeshRenderPlugin {
+            use_gpu_instance_buffer_builder: self.use_gpu_instance_buffer_builder,
+            debug_flags: self.debug_flags,
+        })
+        .add_plugins((
             atmosphere::plugin::AtmospherePlugin,
             decal::clustered::ClusteredDecalPlugin,
             distance_fog::plugin::FogPlugin,
@@ -116,10 +120,6 @@ impl Plugin for Render3dPlugin {
             ssao::plugin::ScreenSpaceAmbientOcclusionPlugin,
             ssr::plugin::ScreenSpaceReflectionsPlugin,
             volumetric_fog::plugin::VolumetricFogPlugin,
-            mesh_pipeline::MeshRenderPlugin {
-                use_gpu_instance_buffer_builder: self.use_gpu_instance_buffer_builder,
-                debug_flags: self.debug_flags,
-            },
         ));
 
         #[cfg(not(feature = "meshlet"))]
