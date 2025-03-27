@@ -4,13 +4,13 @@ use crate::{
     DrawLineJointGizmo, GizmoRenderSystem, GpuLineGizmo, LineGizmoUniformBindgroupLayout,
     SetLineGizmoBindGroup, LINE_JOINT_SHADER_HANDLE, LINE_SHADER_HANDLE,
 };
+
 use bevy_app::{App, Plugin};
 use bevy_core_pipeline::{
     core_3d::{Transparent3d, CORE_3D_DEPTH_FORMAT},
     oit::OrderIndependentTransparencySettings,
     prepass::{DeferredPrepass, DepthPrepass, MotionVectorPrepass, NormalPrepass},
 };
-
 use bevy_ecs::{
     prelude::Entity,
     query::Has,
@@ -20,7 +20,6 @@ use bevy_ecs::{
     world::{FromWorld, World},
 };
 use bevy_image::BevyDefault as _;
-use bevy_pbr::{MeshPipeline, MeshPipelineKey, SetMeshViewBindGroup};
 use bevy_render::sync_world::MainEntity;
 use bevy_render::{
     render_asset::{prepare_assets, RenderAssets},
@@ -32,6 +31,14 @@ use bevy_render::{
     view::{ExtractedView, Msaa, RenderLayers, ViewTarget},
     Render, RenderApp, RenderSet,
 };
+use bevy_render_3d::{
+    material::plugin::MaterialRenderSystems,
+    mesh_pipeline::{
+        commands::SetMeshViewBindGroup,
+        render::pipeline::{MeshPipeline, MeshPipelineKey},
+    },
+};
+
 use tracing::error;
 
 pub struct LineGizmo3dPlugin;
@@ -51,7 +58,7 @@ impl Plugin for LineGizmo3dPlugin {
                 Render,
                 GizmoRenderSystem::QueueLineGizmos3d
                     .in_set(RenderSet::Queue)
-                    .ambiguous_with(bevy_pbr::queue_material_meshes::<bevy_pbr::StandardMaterial>),
+                    .ambiguous_with(MaterialRenderSystems::QueueMeshes),
             )
             .add_systems(
                 Render,

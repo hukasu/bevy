@@ -184,7 +184,7 @@ bevy_ci_testing = ["bevy_dev_tools/bevy_ci_testing", "bevy_render?/ci_limits"]
 animation = ["bevy_animation", "bevy_gltf?/bevy_animation"]
 
 bevy_sprite = ["dep:bevy_sprite", "bevy_gizmos?/bevy_sprite", "bevy_image"]
-bevy_pbr = ["dep:bevy_pbr", "bevy_gizmos?/bevy_pbr", "bevy_image"]
+bevy_pbr = ["dep:bevy_pbr", "bevy_image"]
 bevy_window = ["dep:bevy_window", "dep:bevy_a11y"]
 bevy_core_pipeline = ["dep:bevy_core_pipeline", "bevy_image"]
 bevy_anti_aliasing = ["dep:bevy_anti_aliasing", "bevy_image"]
@@ -213,6 +213,7 @@ bevy_render = [
   "bevy_color/wgpu-types",
   "bevy_color/encase",
 ]
+bevy_render_3d = ["dep:bevy_render_3d", "bevy_gizmos?/bevy_render_3d"]
 
 # Enable assertions to check the validity of parameters passed to glam
 glam_assert = ["bevy_math/glam_assert"]

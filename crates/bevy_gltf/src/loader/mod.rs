@@ -24,11 +24,9 @@ use bevy_image::{
     ImageType, TextureError,
 };
 use bevy_math::{Mat4, Vec3};
+use bevy_pbr::StandardMaterial;
 #[cfg(feature = "pbr_transmission_textures")]
 use bevy_pbr::UvChannel;
-use bevy_pbr::{
-    DirectionalLight, MeshMaterial3d, PointLight, SpotLight, StandardMaterial, MAX_JOINTS,
-};
 use bevy_platform_support::collections::{HashMap, HashSet};
 use bevy_render::{
     camera::{Camera, OrthographicProjection, PerspectiveProjection, Projection, ScalingMode},
@@ -41,6 +39,11 @@ use bevy_render::{
     render_asset::RenderAssetUsages,
     render_resource::{Face, PrimitiveTopology},
     view::Visibility,
+};
+use bevy_render_3d::{
+    light::{DirectionalLight, PointLight, SpotLight},
+    material::MeshMaterial3d,
+    skin::MAX_JOINTS,
 };
 use bevy_scene::Scene;
 #[cfg(not(target_arch = "wasm32"))]
