@@ -11,6 +11,7 @@
 pub mod atmosphere;
 pub mod cluster;
 pub mod decal;
+pub mod deferred;
 pub mod distance_fog;
 #[cfg(not(feature = "meshlet"))]
 mod dummy_meshlet;
@@ -46,6 +47,7 @@ use bevy_render::{
     settings::WgpuFeatures,
     RenderDebugFlags,
 };
+use bevy_utils::default;
 
 use light_probe::MAX_VIEW_LIGHT_PROBES;
 use mesh_pipeline::render::{pipeline::MeshPipelineKey, MeshLayouts};
@@ -82,8 +84,23 @@ pub mod prelude {
     pub use super::volumetric_fog::{FogVolume, VolumetricFog, VolumetricLight};
 }
 
+/// Plugin group containing plugins required for rendering in 3d
 pub struct Render3dPluginGroup {
-    debug_flags: RenderDebugFlags,
+    /// Controls if GPU [`MeshUniform`] building is enabled.
+    ///
+    /// This requires compute shader support and so will be forcibly disabled if
+    /// the platform doesn't support those.
+    pub use_gpu_instance_buffer_builder: bool,
+    pub debug_flags: RenderDebugFlags,
+}
+
+impl Default for Render3dPluginGroup {
+    fn default() -> Self {
+        Self {
+            use_gpu_instance_buffer_builder: true,
+            debug_flags: default(),
+        }
+    }
 }
 
 impl PluginGroup for Render3dPluginGroup {
@@ -99,7 +116,10 @@ impl PluginGroup for Render3dPluginGroup {
             .add(ssao::plugin::ScreenSpaceAmbientOcclusionPlugin)
             .add(ssr::plugin::ScreenSpaceReflectionsPlugin)
             .add(volumetric_fog::plugin::VolumetricFogPlugin)
-            .add(mesh_pipeline::MeshRenderPlugin::new(self.debug_flags));
+            .add(mesh_pipeline::MeshRenderPlugin {
+                use_gpu_instance_buffer_builder: self.use_gpu_instance_buffer_builder,
+                debug_flags: self.debug_flags,
+            });
 
         #[cfg(not(feature = "meshlet"))]
         let pg = pg.add(dummy_meshlet::DummyMeshletPlugin);
