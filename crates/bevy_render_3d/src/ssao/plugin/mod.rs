@@ -14,7 +14,7 @@ use bevy_render::{
 
 use tracing::warn;
 
-use crate::{mesh_pipeline::pipeline::graph::NodeRender3d, ssao::ScreenSpaceAmbientOcclusion};
+use crate::{mesh_pipeline::graph::NodeRender3d, ssao::ScreenSpaceAmbientOcclusion};
 
 use systems::{
     extract_ssao_settings, prepare_ssao_bind_groups, prepare_ssao_pipelines, prepare_ssao_textures,

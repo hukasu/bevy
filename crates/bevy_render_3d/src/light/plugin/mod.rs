@@ -1,6 +1,6 @@
 mod systems;
 
-use std::marker::PhantomData;
+use core::marker::PhantomData;
 
 use bevy_app::{Plugin, PostUpdate};
 use bevy_ecs::schedule::{IntoScheduleConfigs, SystemSet};

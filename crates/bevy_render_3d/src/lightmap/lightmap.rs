@@ -165,7 +165,7 @@ pub struct LightmapSlab {
     pub free_slots_bitmask: u32,
 }
 
-struct AllocatedLightmap {
+pub(crate) struct AllocatedLightmap {
     pub gpu_image: GpuImage,
     // This will only be present if the lightmap is allocated but not loaded.
     pub asset_id: Option<AssetId<Image>>,

@@ -1,4 +1,4 @@
-use std::num::NonZero;
+use core::num::NonZero;
 
 use bevy_ecs::component::Component;
 use bevy_math::{uvec4, UVec2, UVec3, UVec4, Vec3Swizzles};

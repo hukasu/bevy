@@ -1,4 +1,4 @@
-use std::num::NonZeroU64;
+use core::num::NonZeroU64;
 
 use bevy_core_pipeline::{
     experimental::mip_generation::ViewDepthPyramid,

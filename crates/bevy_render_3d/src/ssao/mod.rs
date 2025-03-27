@@ -1,5 +1,5 @@
 pub mod plugin;
-mod ssao;
+pub(crate) mod ssao;
 
 use bevy_core_pipeline::prepass::{DepthPrepass, NormalPrepass};
 use bevy_ecs::{component::Component, reflect::ReflectComponent};

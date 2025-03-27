@@ -8,7 +8,7 @@ use bevy_ecs::{
     query::{QueryData, QueryFilter},
     schedule::{IntoScheduleConfigs, SystemSet},
 };
-use bevy_math::{Mat4, Vec3A};
+use bevy_math::{ops, Mat4, Vec2, Vec3A};
 use bevy_render::{
     camera::CameraUpdateSystem,
     primitives::{Aabb, Sphere},
@@ -107,7 +107,7 @@ impl Plugin for ClusterPlugin {
             }
         }
 
-        if let Some(render_app) = app.get_sub_app(RenderApp) {
+        if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app
                 .add_systems(ExtractSchedule, extract_clusters)
                 .add_systems(Render, prepare_clusters.in_set(RenderSet::PrepareResources));
@@ -170,4 +170,21 @@ pub trait ClusterAssignableCullMethod: Send + Sync + 'static {
         aabb: &Aabb,
         cluster_aabb_sphere: &mut Option<Sphere>,
     ) -> bool;
+}
+
+pub(crate) fn calculate_cluster_factors(
+    near: f32,
+    far: f32,
+    z_slices: f32,
+    is_orthographic: bool,
+) -> Vec2 {
+    if is_orthographic {
+        Vec2::new(-near, z_slices / (-far - -near))
+    } else {
+        let z_slices_of_ln_zfar_over_znear = (z_slices - 1.0) / ops::ln(far / near);
+        Vec2::new(
+            z_slices_of_ln_zfar_over_znear,
+            ops::ln(near) * z_slices_of_ln_zfar_over_znear,
+        )
+    }
 }

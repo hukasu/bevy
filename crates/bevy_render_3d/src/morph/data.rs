@@ -6,7 +6,7 @@ use bevy_render::{
 
 #[derive(Component)]
 pub struct MorphIndex {
-    pub(super) index: u32,
+    pub(crate) index: u32,
 }
 
 /// Maps each mesh affected by morph targets to the applicable offset within the

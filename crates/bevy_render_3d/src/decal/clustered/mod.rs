@@ -1,19 +1,23 @@
-mod decals;
+pub(crate) mod decals;
 mod systems;
+
+use core::num::NonZero;
 
 use bevy_app::{App, Plugin};
 use bevy_asset::{load_internal_asset, weak_handle, Handle};
 use bevy_ecs::schedule::IntoScheduleConfigs;
 use bevy_render::{
     extract_component::ExtractComponentPlugin,
-    render_resource::Shader,
+    render_resource::{
+        binding_types, BindGroupLayoutEntryBuilder, SamplerBindingType, Shader, TextureSampleType,
+    },
     renderer::{RenderAdapter, RenderDevice},
     ExtractSchedule, Render, RenderApp, RenderSet,
 };
-use decals::{DecalsBuffer, RenderClusteredDecals};
+use decals::{DecalsBuffer, RenderClusteredDecal, RenderClusteredDecals};
 
 use crate::{
-    binding_arrays_are_usable, cluster::plugin::ClusterableObjectPlugin, decal::ClusteredDecal,
+    cluster::plugin::ClusterableObjectPlugin, clustered_decals_are_usable, decal::ClusteredDecal,
     light::plugin::LightSystems,
 };
 
@@ -75,18 +79,32 @@ impl Plugin for ClusteredDecalPlugin {
     }
 }
 
-/// Returns true if clustered decals are usable on the current platform or false
-/// otherwise.
-///
-/// Clustered decals are currently disabled on macOS and iOS due to insufficient
-/// texture bindings and limited bindless support in `wgpu`.
-fn clustered_decals_are_usable(
+/// Returns the layout for the clustered-decal-related bind group entries for a
+/// single view.
+pub(crate) fn get_bind_group_layout_entries(
     render_device: &RenderDevice,
     render_adapter: &RenderAdapter,
-) -> bool {
-    // Disable binding arrays on Metal. There aren't enough texture bindings available.
-    // See issue #17553.
-    // Re-enable this when `wgpu` has first-class bindless.
-    binding_arrays_are_usable(render_device, render_adapter)
-        && cfg!(not(any(target_os = "macos", target_os = "ios")))
+) -> Option<[BindGroupLayoutEntryBuilder; 3]> {
+    // If binding arrays aren't supported on the current platform, we have no
+    // bind group layout entries.
+    if !clustered_decals_are_usable(render_device, render_adapter) {
+        return None;
+    }
+
+    let Some(max_view_decals) = u32::try_from(MAX_VIEW_DECALS)
+        .ok()
+        .and_then(|max_view_decals| NonZero::<u32>::new(max_view_decals))
+    else {
+        unreachable!("`MAX_VIEW_DECALS` should never be zero or exceed u32.");
+    };
+
+    Some([
+        // `decals`
+        binding_types::storage_buffer_read_only::<RenderClusteredDecal>(false),
+        // `decal_textures`
+        binding_types::texture_2d(TextureSampleType::Float { filterable: true })
+            .count(max_view_decals),
+        // `decal_sampler`
+        binding_types::sampler(SamplerBindingType::Filtering),
+    ])
 }

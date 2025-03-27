@@ -1,4 +1,4 @@
-use std::{num::NonZero, ops::Deref};
+use core::{num::NonZero, ops::Deref};
 
 use bevy_render::{
     render_asset::RenderAssets,
@@ -137,7 +137,7 @@ impl<'a> RenderViewIrradianceVolumeBindGroupEntries<'a> {
 
 /// Returns the bind group layout entries for the voxel texture and sampler
 /// respectively.
-fn get_bind_group_layout_entries(
+pub fn get_bind_group_layout_entries(
     render_device: &RenderDevice,
     render_adapter: &RenderAdapter,
 ) -> [BindGroupLayoutEntryBuilder; 2] {

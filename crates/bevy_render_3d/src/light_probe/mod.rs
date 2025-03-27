@@ -1,11 +1,11 @@
 //! Light probes for baked global illumination.
 
-mod environment_map;
-mod irradiance_volume;
-mod light_probes;
+pub(crate) mod environment_map;
+pub(crate) mod irradiance_volume;
+pub(crate) mod light_probes;
 pub mod plugin;
 
-use std::{hash::Hash, ops::Deref};
+use core::{hash::Hash, ops::Deref};
 
 use bevy_asset::{AssetId, Handle};
 use bevy_ecs::{component::Component, entity::Entity, query::With, reflect::ReflectComponent};
@@ -21,10 +21,11 @@ use bevy_render::{
 };
 use bevy_transform::components::{GlobalTransform, Transform};
 use bevy_utils::default;
-use environment_map::{EnvironmentMapIds, EnvironmentMapViewLightProbeInfo};
-use light_probes::RenderViewLightProbes;
 
 use crate::cluster::plugin::ClusterAssignable;
+
+use environment_map::{EnvironmentMapIds, EnvironmentMapViewLightProbeInfo};
+use light_probes::RenderViewLightProbes;
 
 /// The maximum number of each type of light probe that each view will consider.
 ///

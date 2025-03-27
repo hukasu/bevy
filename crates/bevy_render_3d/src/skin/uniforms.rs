@@ -1,15 +1,15 @@
-use std::sync::OnceLock;
-
 use bevy_ecs::{
     resource::Resource,
     world::{FromWorld, World},
 };
 use bevy_math::Mat4;
+use bevy_platform_support::sync::OnceLock;
 use bevy_render::{
     render_resource::{Buffer, BufferDescriptor, BufferUsages},
     renderer::RenderDevice,
     sync_world::{MainEntity, MainEntityHashMap},
 };
+
 use offset_allocator::{Allocation, Allocator};
 use smallvec::SmallVec;
 

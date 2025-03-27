@@ -27,11 +27,11 @@ use crate::{
         sky::{RenderSkyBindGroupLayouts, RenderSkyPipelineId, RenderSkyPipelineKey},
         Atmosphere, AtmosphereSettings,
     },
-    light::plugin::LightMeta,
+    light::render::LightMeta,
 };
 
 #[derive(Component)]
-struct AtmosphereTextures {
+pub struct AtmosphereTextures {
     pub transmittance_lut: CachedTexture,
     pub multiscattering_lut: CachedTexture,
     pub sky_view_lut: CachedTexture,

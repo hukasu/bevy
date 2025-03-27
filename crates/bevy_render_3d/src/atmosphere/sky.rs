@@ -22,8 +22,7 @@ use bevy_render::{
 
 use crate::{
     atmosphere::{Atmosphere, AtmosphereSettings},
-    light::plugin::shader_type::GpuLights,
-    mesh_pipeline::pipeline::view::ViewLightsUniformOffset,
+    light::{render::GpuLights, ViewLightsUniformOffset},
 };
 
 use super::{
@@ -32,13 +31,13 @@ use super::{
 };
 
 #[derive(Copy, Clone, Hash, PartialEq, Eq)]
-pub(crate) struct RenderSkyPipelineKey {
+pub struct RenderSkyPipelineKey {
     pub msaa_samples: u32,
     pub hdr: bool,
 }
 
 #[derive(Component)]
-pub(crate) struct RenderSkyPipelineId(pub CachedRenderPipelineId);
+pub struct RenderSkyPipelineId(pub CachedRenderPipelineId);
 
 #[derive(Resource)]
 pub struct RenderSkyBindGroupLayouts {

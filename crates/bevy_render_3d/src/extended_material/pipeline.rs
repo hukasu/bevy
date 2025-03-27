@@ -1,7 +1,7 @@
 use bevy_asset::Handle;
 use bevy_render::render_resource::{BindGroupLayout, Shader};
 
-use crate::mesh_pipeline::pipeline::{MeshPipeline, MeshPipelineKey};
+use crate::mesh_pipeline::render::pipeline::{MeshPipeline, MeshPipelineKey};
 
 use super::MaterialExtension;
 

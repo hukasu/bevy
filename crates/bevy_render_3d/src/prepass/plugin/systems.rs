@@ -45,7 +45,6 @@ use crate::{
         },
         specialization::EntitySpecializationTicks,
     },
-    meshlet::MeshletMesh3d,
     prepass::{
         render::{
             PrepassPipeline, PrepassViewBindGroup, SpecializedPrepassMaterialPipelineCache,
@@ -56,6 +55,9 @@ use crate::{
     render_method::OpaqueRendererMethod,
     shadow::render::ShadowView,
 };
+
+#[cfg(feature = "meshlet")]
+use crate::meshlet::MeshletMesh3d;
 
 #[cfg(not(feature = "meshlet"))]
 type PreviousMeshFilter = With<Mesh3d>;

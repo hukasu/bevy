@@ -1,4 +1,4 @@
-mod fog;
+pub(crate) mod fog;
 pub mod plugin;
 
 use bevy_color::{Color, ColorToComponents, LinearRgba};

@@ -210,7 +210,7 @@ pub struct ViewEnvironmentMapUniformOffset(pub u32);
 
 /// Returns the bind group layout entries for the environment map diffuse and
 /// specular binding arrays respectively, in addition to the sampler.
-fn get_bind_group_layout_entries(
+pub fn get_bind_group_layout_entries(
     render_device: &RenderDevice,
     render_adapter: &RenderAdapter,
 ) -> [BindGroupLayoutEntryBuilder; 4] {

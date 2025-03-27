@@ -31,7 +31,7 @@
 //! [`StandardMaterial`]: crate::StandardMaterial
 //! [`bevy-baked-gi`]: https://github.com/pcwalton/bevy-baked-gi
 
-mod lightmap;
+pub(crate) mod lightmap;
 pub mod plugin;
 
 use bevy_asset::Handle;
@@ -39,6 +39,8 @@ use bevy_ecs::{component::Component, reflect::ReflectComponent};
 use bevy_image::Image;
 use bevy_math::Rect;
 use bevy_reflect::{std_traits::ReflectDefault, Reflect};
+
+pub(super) use lightmap::{LightmapSlabIndex, RenderLightmaps};
 
 /// A component that applies baked indirect diffuse global illumination from a
 /// lightmap.

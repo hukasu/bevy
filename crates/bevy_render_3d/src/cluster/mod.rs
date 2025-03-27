@@ -1,7 +1,7 @@
 //! Spatial clustering of objects, currently just point and spot lights.
 
-mod cluster;
-mod clusterable_objects;
+pub(crate) mod cluster;
+pub(crate) mod clusterable_objects;
 pub mod plugin;
 #[cfg(test)]
 mod test;

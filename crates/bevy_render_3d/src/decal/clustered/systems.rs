@@ -1,15 +1,10 @@
-use core::num::NonZero;
-
 use bevy_ecs::{
     entity::Entity,
     query::With,
     system::{Query, Res, ResMut},
 };
 use bevy_render::{
-    render_resource::{
-        binding_types, BindGroupLayoutEntryBuilder, SamplerBindingType, TextureSampleType,
-    },
-    renderer::{RenderAdapter, RenderDevice, RenderQueue},
+    renderer::{RenderDevice, RenderQueue},
     sync_world::RenderEntity,
     view::ViewVisibility,
     Extract,
@@ -18,11 +13,7 @@ use bevy_transform::components::GlobalTransform;
 
 use crate::{cluster::GlobalClusterableObjectMeta, decal::ClusteredDecal};
 
-use super::{
-    clustered_decals_are_usable,
-    decals::{DecalsBuffer, RenderClusteredDecal, RenderClusteredDecals},
-    MAX_VIEW_DECALS,
-};
+use super::decals::{DecalsBuffer, RenderClusteredDecal, RenderClusteredDecals};
 
 /// Extracts decals from the main world into the render world.
 pub fn extract_decals(
@@ -101,34 +92,4 @@ pub fn upload_decals(
     }
 
     decals_buffer.write_buffer(&render_device, &render_queue);
-}
-
-/// Returns the layout for the clustered-decal-related bind group entries for a
-/// single view.
-pub fn get_bind_group_layout_entries(
-    render_device: &RenderDevice,
-    render_adapter: &RenderAdapter,
-) -> Option<[BindGroupLayoutEntryBuilder; 3]> {
-    // If binding arrays aren't supported on the current platform, we have no
-    // bind group layout entries.
-    if !clustered_decals_are_usable(render_device, render_adapter) {
-        return None;
-    }
-
-    let Some(max_view_decals) = u32::try_from(MAX_VIEW_DECALS)
-        .ok()
-        .and_then(|max_view_decals| NonZero::<u32>::new(max_view_decals))
-    else {
-        unreachable!("`MAX_VIEW_DECALS` should never be zero or exceed u32.");
-    };
-
-    Some([
-        // `decals`
-        binding_types::storage_buffer_read_only::<RenderClusteredDecal>(false),
-        // `decal_textures`
-        binding_types::texture_2d(TextureSampleType::Float { filterable: true })
-            .count(max_view_decals),
-        // `decal_sampler`
-        binding_types::sampler(SamplerBindingType::Filtering),
-    ])
 }

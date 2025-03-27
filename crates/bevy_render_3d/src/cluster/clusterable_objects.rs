@@ -1,4 +1,7 @@
-use core::{cmp::Reverse, num::NonZero};
+use core::{
+    cmp::{Ordering, Reverse},
+    num::NonZero,
+};
 
 use bevy_ecs::{
     component::Component,
@@ -237,13 +240,13 @@ pub struct ClusterableObjectKey {
 }
 
 impl PartialOrd for ClusterableObjectKey {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl Ord for ClusterableObjectKey {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    fn cmp(&self, other: &Self) -> Ordering {
         (
             self.order,
             Reverse(self.shadows_enabled),

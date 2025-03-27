@@ -28,9 +28,10 @@ use crate::{
             GlobalClusterableObjectMeta, GlobalVisibleClusterableObjects,
             VisibleClusterableObjects,
         },
+        plugin::calculate_cluster_factors,
         ClusterConfig, ClusterFarZMode, MAX_UNIFORM_BUFFER_CLUSTERABLE_OBJECTS,
     },
-    mesh_pipeline::pipeline::MeshPipeline,
+    mesh_pipeline::render::pipeline::MeshPipeline,
 };
 
 use super::ClusterAssignable;
@@ -54,7 +55,7 @@ pub fn add_clusters(
 }
 
 #[derive(Resource, Default)]
-struct ClusterAssignments {
+pub struct ClusterAssignments {
     clusterable_objects: Vec<ClusterableObjectAssignmentData>,
     cluster_aabb_spheres: Vec<Option<Sphere>>,
 }
@@ -718,18 +719,6 @@ pub fn prepare_clusters(
         view_clusters_bindings.write_buffers(render_device, &render_queue);
 
         commands.entity(entity).insert(view_clusters_bindings);
-    }
-}
-
-fn calculate_cluster_factors(near: f32, far: f32, z_slices: f32, is_orthographic: bool) -> Vec2 {
-    if is_orthographic {
-        Vec2::new(-near, z_slices / (-far - -near))
-    } else {
-        let z_slices_of_ln_zfar_over_znear = (z_slices - 1.0) / ops::ln(far / near);
-        Vec2::new(
-            z_slices_of_ln_zfar_over_znear,
-            ops::ln(near) * z_slices_of_ln_zfar_over_znear,
-        )
     }
 }
 

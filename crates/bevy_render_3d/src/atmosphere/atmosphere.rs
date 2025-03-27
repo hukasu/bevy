@@ -20,9 +20,7 @@ use bevy_render::{
     view::{ViewUniform, ViewUniformOffset},
 };
 
-use crate::{
-    light::plugin::shader_type::GpuLights, mesh_pipeline::pipeline::view::ViewLightsUniformOffset,
-};
+use crate::light::{render::GpuLights, ViewLightsUniformOffset};
 
 use super::{
     plugin::{AERIAL_VIEW_LUT, MULTISCATTERING_LUT, SKY_VIEW_LUT, TRANSMITTANCE_LUT},
@@ -93,7 +91,7 @@ impl FromWorld for AtmosphereLutPipelines {
 }
 
 #[derive(Component)]
-pub(crate) struct AtmosphereBindGroups {
+pub struct AtmosphereBindGroups {
     pub transmittance_lut: BindGroup,
     pub multiscattering_lut: BindGroup,
     pub sky_view_lut: BindGroup,

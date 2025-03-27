@@ -13,12 +13,13 @@ use bevy_render::{
     },
     renderer::RenderDevice,
 };
-use pipeline::{MaterialExtensionKey, MaterialExtensionPipeline};
 
 use crate::{
     material::{Material, MaterialPipeline, MaterialPipelineKey},
     render_method::OpaqueRendererMethod,
 };
+
+use pipeline::{MaterialExtensionKey, MaterialExtensionPipeline};
 
 /// A subset of the `Material` trait for defining extensions to a base `Material`, such as the builtin `StandardMaterial`.
 ///
