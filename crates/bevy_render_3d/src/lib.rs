@@ -12,6 +12,8 @@ pub mod atmosphere;
 pub mod cluster;
 pub mod decal;
 pub mod distance_fog;
+#[cfg(not(feature = "meshlet"))]
+mod dummy_meshlet;
 pub mod extended_material;
 pub mod gpu_preprocess;
 pub mod light;
@@ -54,7 +56,8 @@ use mesh_pipeline::render::{pipeline::MeshPipelineKey, MeshLayouts};
 #[cfg(feature = "meshlet")]
 pub mod experimental {
     /// Render high-poly 3d meshes using an efficient GPU-driven method.
-    /// See [`MeshletPlugin`](meshlet::MeshletPlugin) and [`MeshletMesh`](meshlet::MeshletMesh) for details.
+    /// See [`MeshletPlugin`](crate::meshlet::plugin::MeshletPlugin) and
+    /// [`MeshletMesh`](crate::meshlet::MeshletMesh) for details.
     pub mod meshlet {
         pub use crate::meshlet::*;
     }
@@ -66,7 +69,7 @@ pub struct Render3dPluginGroup {
 
 impl PluginGroup for Render3dPluginGroup {
     fn build(self) -> PluginGroupBuilder {
-        PluginGroupBuilder::start::<Self>()
+        let pg = PluginGroupBuilder::start::<Self>()
             .add(atmosphere::plugin::AtmospherePlugin)
             .add(decal::clustered::ClusteredDecalPlugin)
             .add(distance_fog::plugin::FogPlugin)
@@ -77,7 +80,12 @@ impl PluginGroup for Render3dPluginGroup {
             .add(ssao::plugin::ScreenSpaceAmbientOcclusionPlugin)
             .add(ssr::plugin::ScreenSpaceReflectionsPlugin)
             .add(volumetric_fog::plugin::VolumetricFogPlugin)
-            .add(mesh_pipeline::MeshRenderPlugin::new(self.debug_flags))
+            .add(mesh_pipeline::MeshRenderPlugin::new(self.debug_flags));
+
+        #[cfg(not(feature = "meshlet"))]
+        let pg = pg.add(dummy_meshlet::DummyMeshletPlugin);
+
+        pg
     }
 }
 
