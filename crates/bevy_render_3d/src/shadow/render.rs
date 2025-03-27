@@ -6,23 +6,35 @@ use bevy_asset::UntypedAssetId;
 use bevy_derive::{Deref, DerefMut};
 use bevy_ecs::{
     component::{Component, Tick},
+    query::{Has, QueryState},
     resource::Resource,
+    system::lifetimeless::Read,
     world::{FromWorld, World},
 };
 use bevy_platform_support::collections::HashMap;
 use bevy_render::{
+    diagnostic::RecordDiagnostics,
+    experimental::occlusion_culling::OcclusionCulling,
     mesh::allocator::SlabId,
-    render_phase::{DrawFunctionId, PhaseItemBatchSetKey},
-    render_resource::{
-        AddressMode, CachedRenderPipelineId, CompareFunction, FilterMode, Sampler,
-        SamplerDescriptor, Texture, TextureView,
+    render_graph::{Node, NodeRunError, RenderGraphContext},
+    render_phase::{
+        DrawFunctionId, PhaseItemBatchSetKey, TrackedRenderPass, ViewBinnedRenderPhases,
     },
-    renderer::RenderDevice,
+    render_resource::{
+        AddressMode, CachedRenderPipelineId, CommandEncoderDescriptor, CompareFunction, FilterMode,
+        RenderPassDescriptor, Sampler, SamplerDescriptor, StoreOp, Texture, TextureView,
+    },
+    renderer::{RenderContext, RenderDevice},
     sync_world::MainEntityHashMap,
     texture::DepthAttachment,
-    view::RetainedViewEntity,
+    view::{ExtractedView, RetainedViewEntity},
 };
 use bevy_utils::prelude::default;
+use tracing::error;
+
+use crate::light::ViewLightEntities;
+
+use super::phase_item::Shadow;
 
 #[derive(Component)]
 pub struct ShadowView {
@@ -156,5 +168,171 @@ impl<M> Default for SpecializedShadowMaterialViewPipelineCache<M> {
             map: MainEntityHashMap::default(),
             marker: PhantomData,
         }
+    }
+}
+
+/// The rendering node that renders meshes that were "visible" (so to speak)
+/// from a light last frame.
+///
+/// If occlusion culling for a light is disabled, then this node simply renders
+/// all meshes in range of the light.
+#[derive(Deref, DerefMut)]
+pub struct EarlyShadowPassNode(ShadowPassNode);
+
+/// The rendering node that renders meshes that became newly "visible" (so to
+/// speak) from a light this frame.
+///
+/// If occlusion culling for a light is disabled, then this node does nothing.
+#[derive(Deref, DerefMut)]
+pub struct LateShadowPassNode(ShadowPassNode);
+
+/// Encapsulates rendering logic shared between the early and late shadow pass
+/// nodes.
+pub struct ShadowPassNode {
+    /// The query that finds cameras in which shadows are visible.
+    main_view_query: QueryState<Read<ViewLightEntities>>,
+    /// The query that finds shadow cascades.
+    view_light_query: QueryState<(Read<ShadowView>, Read<ExtractedView>, Has<OcclusionCulling>)>,
+}
+
+impl FromWorld for EarlyShadowPassNode {
+    fn from_world(world: &mut World) -> Self {
+        Self(ShadowPassNode::from_world(world))
+    }
+}
+
+impl FromWorld for LateShadowPassNode {
+    fn from_world(world: &mut World) -> Self {
+        Self(ShadowPassNode::from_world(world))
+    }
+}
+
+impl FromWorld for ShadowPassNode {
+    fn from_world(world: &mut World) -> Self {
+        Self {
+            main_view_query: QueryState::new(world),
+            view_light_query: QueryState::new(world),
+        }
+    }
+}
+
+impl Node for EarlyShadowPassNode {
+    fn update(&mut self, world: &mut World) {
+        self.0.update(world);
+    }
+
+    fn run<'w>(
+        &self,
+        graph: &mut RenderGraphContext,
+        render_context: &mut RenderContext<'w>,
+        world: &'w World,
+    ) -> Result<(), NodeRunError> {
+        self.0.run(graph, render_context, world, false)
+    }
+}
+
+impl Node for LateShadowPassNode {
+    fn update(&mut self, world: &mut World) {
+        self.0.update(world);
+    }
+
+    fn run<'w>(
+        &self,
+        graph: &mut RenderGraphContext,
+        render_context: &mut RenderContext<'w>,
+        world: &'w World,
+    ) -> Result<(), NodeRunError> {
+        self.0.run(graph, render_context, world, true)
+    }
+}
+
+impl ShadowPassNode {
+    fn update(&mut self, world: &mut World) {
+        self.main_view_query.update_archetypes(world);
+        self.view_light_query.update_archetypes(world);
+    }
+
+    /// Runs the node logic.
+    ///
+    /// `is_late` is true if this is the late shadow pass or false if this is
+    /// the early shadow pass.
+    fn run<'w>(
+        &self,
+        graph: &mut RenderGraphContext,
+        render_context: &mut RenderContext<'w>,
+        world: &'w World,
+        is_late: bool,
+    ) -> Result<(), NodeRunError> {
+        let diagnostics = render_context.diagnostic_recorder();
+
+        let view_entity = graph.view_entity();
+
+        let Some(shadow_render_phases) = world.get_resource::<ViewBinnedRenderPhases<Shadow>>()
+        else {
+            return Ok(());
+        };
+
+        let time_span = diagnostics.time_span(render_context.command_encoder(), "shadows");
+
+        if let Ok(view_lights) = self.main_view_query.get_manual(world, view_entity) {
+            for view_light_entity in view_lights.lights.iter().copied() {
+                let Ok((view_light, extracted_light_view, occlusion_culling)) =
+                    self.view_light_query.get_manual(world, view_light_entity)
+                else {
+                    continue;
+                };
+
+                // There's no need for a late shadow pass if the light isn't
+                // using occlusion culling.
+                if is_late && !occlusion_culling {
+                    continue;
+                }
+
+                let Some(shadow_phase) =
+                    shadow_render_phases.get(&extracted_light_view.retained_view_entity)
+                else {
+                    continue;
+                };
+
+                let depth_stencil_attachment =
+                    Some(view_light.depth_attachment.get_attachment(StoreOp::Store));
+
+                let diagnostics = render_context.diagnostic_recorder();
+                render_context.add_command_buffer_generation_task(move |render_device| {
+                    #[cfg(feature = "trace")]
+                    let _shadow_pass_span = info_span!("", "{}", view_light.pass_name).entered();
+                    let mut command_encoder =
+                        render_device.create_command_encoder(&CommandEncoderDescriptor {
+                            label: Some("shadow_pass_command_encoder"),
+                        });
+
+                    let render_pass = command_encoder.begin_render_pass(&RenderPassDescriptor {
+                        label: Some(&view_light.pass_name),
+                        color_attachments: &[],
+                        depth_stencil_attachment,
+                        timestamp_writes: None,
+                        occlusion_query_set: None,
+                    });
+
+                    let mut render_pass = TrackedRenderPass::new(&render_device, render_pass);
+                    let pass_span =
+                        diagnostics.pass_span(&mut render_pass, view_light.pass_name.clone());
+
+                    if let Err(err) =
+                        shadow_phase.render(&mut render_pass, world, view_light_entity)
+                    {
+                        error!("Error encountered while rendering the shadow phase {err:?}");
+                    }
+
+                    pass_span.end(&mut render_pass);
+                    drop(render_pass);
+                    command_encoder.finish()
+                });
+            }
+        }
+
+        time_span.end(render_context.command_encoder());
+
+        Ok(())
     }
 }
