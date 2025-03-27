@@ -36,7 +36,7 @@ extern crate alloc;
 
 use core::num::NonZero;
 
-use bevy_app::{PluginGroup, PluginGroupBuilder};
+use bevy_app::Plugin;
 use bevy_mesh::{Mesh, MeshVertexBufferLayoutRef, VertexAttributeDescriptor};
 use bevy_render::{
     render_resource::{
@@ -85,7 +85,7 @@ pub mod prelude {
 }
 
 /// Plugin group containing plugins required for rendering in 3d
-pub struct Render3dPluginGroup {
+pub struct Render3dPlugin {
     /// Controls if GPU [`MeshUniform`] building is enabled.
     ///
     /// This requires compute shader support and so will be forcibly disabled if
@@ -94,7 +94,7 @@ pub struct Render3dPluginGroup {
     pub debug_flags: RenderDebugFlags,
 }
 
-impl Default for Render3dPluginGroup {
+impl Default for Render3dPlugin {
     fn default() -> Self {
         Self {
             use_gpu_instance_buffer_builder: true,
@@ -103,28 +103,27 @@ impl Default for Render3dPluginGroup {
     }
 }
 
-impl PluginGroup for Render3dPluginGroup {
-    fn build(self) -> PluginGroupBuilder {
-        let pg = PluginGroupBuilder::start::<Self>()
-            .add(atmosphere::plugin::AtmospherePlugin)
-            .add(decal::clustered::ClusteredDecalPlugin)
-            .add(distance_fog::plugin::FogPlugin)
-            .add(light_probe::plugin::LightProbePlugin)
-            .add(lightmap::plugin::LightmapPlugin)
-            .add(morph::MorphPlugin)
-            .add(skin::SkinPlugin)
-            .add(ssao::plugin::ScreenSpaceAmbientOcclusionPlugin)
-            .add(ssr::plugin::ScreenSpaceReflectionsPlugin)
-            .add(volumetric_fog::plugin::VolumetricFogPlugin)
-            .add(mesh_pipeline::MeshRenderPlugin {
+impl Plugin for Render3dPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        app.add_plugins((
+            atmosphere::plugin::AtmospherePlugin,
+            decal::clustered::ClusteredDecalPlugin,
+            distance_fog::plugin::FogPlugin,
+            light_probe::plugin::LightProbePlugin,
+            lightmap::plugin::LightmapPlugin,
+            morph::MorphPlugin,
+            skin::SkinPlugin,
+            ssao::plugin::ScreenSpaceAmbientOcclusionPlugin,
+            ssr::plugin::ScreenSpaceReflectionsPlugin,
+            volumetric_fog::plugin::VolumetricFogPlugin,
+            mesh_pipeline::MeshRenderPlugin {
                 use_gpu_instance_buffer_builder: self.use_gpu_instance_buffer_builder,
                 debug_flags: self.debug_flags,
-            });
+            },
+        ));
 
         #[cfg(not(feature = "meshlet"))]
-        let pg = pg.add(dummy_meshlet::DummyMeshletPlugin);
-
-        pg
+        app.add_plugins(dummy_meshlet::DummyMeshletPlugin);
     }
 }
 

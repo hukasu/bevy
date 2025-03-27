@@ -40,9 +40,8 @@ plugin_group! {
         bevy_render::pipelined_rendering:::PipelinedRenderingPlugin,
         #[cfg(feature = "bevy_core_pipeline")]
         bevy_core_pipeline:::CorePipelinePlugin,
-        #[plugin_group]
         #[cfg(feature = "bevy_render_3d")]
-        bevy_render_3d:::Render3dPluginGroup,
+        bevy_render_3d:::Render3dPlugin,
         #[cfg(feature = "bevy_anti_aliasing")]
         bevy_anti_aliasing:::AntiAliasingPlugin,
         #[cfg(feature = "bevy_sprite")]
