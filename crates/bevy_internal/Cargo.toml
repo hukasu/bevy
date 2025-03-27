@@ -19,6 +19,7 @@ trace = [
   "bevy_log/trace",
   "bevy_pbr?/trace",
   "bevy_render?/trace",
+  "bevy_render_3d?/trace",
   "bevy_winit?/trace",
 ]
 trace_chrome = ["bevy_log/tracing-chrome"]
@@ -237,10 +238,10 @@ bevy_debug_stepping = [
 ]
 
 # Enables the meshlet renderer for dense high-poly scenes (experimental)
-meshlet = ["bevy_pbr?/meshlet"]
+meshlet = ["bevy_render_3d?/meshlet"]
 
 # Enables processing meshes into meshlet meshes for bevy_pbr
-meshlet_processor = ["bevy_pbr?/meshlet_processor"]
+meshlet_processor = ["bevy_render_3d?/meshlet_processor"]
 
 # Provides a collection of developer tools
 bevy_dev_tools = ["dep:bevy_dev_tools"]
