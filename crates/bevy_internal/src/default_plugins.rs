@@ -51,7 +51,7 @@ plugin_group! {
         #[cfg(feature = "bevy_ui")]
         bevy_ui:::UiPlugin,
         #[cfg(feature = "bevy_pbr")]
-        bevy_pbr:::PbrPlugin,
+        bevy_pbr::plugin:::PbrPlugin,
         // NOTE: Load this after renderer initialization so that it knows about the supported
         // compressed texture formats.
         #[cfg(feature = "bevy_gltf")]
