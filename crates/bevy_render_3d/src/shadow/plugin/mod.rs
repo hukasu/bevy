@@ -20,7 +20,10 @@ use crate::{
 
 use super::{
     phase_item::Shadow,
-    render::{EarlyShadowPassNode, LateShadowPassNode, SpecializedShadowMaterialPipelineCache},
+    render::{
+        EarlyShadowPassNode, LateShadowPassNode, ShadowSamplers,
+        SpecializedShadowMaterialPipelineCache,
+    },
 };
 
 use systems::{queue_shadows, specialize_shadows};
@@ -81,5 +84,13 @@ impl Plugin for BaseShadowPlugin {
                 Node3d::StartMainPass,
             ));
         }
+    }
+
+    fn finish(&self, app: &mut bevy_app::App) {
+        let Some(render_app) = app.get_sub_app_mut(RenderApp) else {
+            return;
+        };
+
+        render_app.init_resource::<ShadowSamplers>();
     }
 }
