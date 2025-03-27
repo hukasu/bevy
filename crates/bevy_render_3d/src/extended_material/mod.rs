@@ -16,7 +16,7 @@ use bevy_render::{
 
 use crate::{
     material::{Material, MaterialPipeline, MaterialPipelineKey},
-    render_method::OpaqueRendererMethod,
+    mesh_pipeline::render_method::OpaqueRendererMethod,
 };
 
 use pipeline::{MaterialExtensionKey, MaterialExtensionPipeline};
