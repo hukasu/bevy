@@ -15,11 +15,9 @@ use bevy_render::{
 };
 use pipeline::{MaterialExtensionKey, MaterialExtensionPipeline};
 
-use crate::material::{
-    plugin::pipeline::{
-        key::MaterialPipelineKey, render_method::OpaqueRendererMethod, MaterialPipeline,
-    },
-    Material,
+use crate::{
+    material::{Material, MaterialPipeline, MaterialPipelineKey},
+    render_method::OpaqueRendererMethod,
 };
 
 /// A subset of the `Material` trait for defining extensions to a base `Material`, such as the builtin `StandardMaterial`.
