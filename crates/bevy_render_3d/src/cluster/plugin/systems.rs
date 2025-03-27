@@ -29,7 +29,8 @@ use crate::{
             VisibleClusterableObjects,
         },
         plugin::calculate_cluster_factors,
-        ClusterConfig, ClusterFarZMode, MAX_UNIFORM_BUFFER_CLUSTERABLE_OBJECTS,
+        ClusterConfig, ClusterFarZMode, CLUSTERED_FORWARD_STORAGE_BUFFER_COUNT,
+        MAX_UNIFORM_BUFFER_CLUSTERABLE_OBJECTS,
     },
     mesh_pipeline::render::pipeline::MeshPipeline,
 };
@@ -110,7 +111,7 @@ pub fn sort_cluster_assigned_objects(
 
         // check each clusterable object against each view's frustum, keep only
         // those that affect at least one of our views
-        let frusta: Vec<_> = frusta.iter().map(|frustum| *frustum).collect();
+        let frusta: Vec<_> = frusta.iter().copied().collect();
         let mut clusterable_objects_in_view_count = 0;
         cluster_assignments
             .clusterable_objects
@@ -1029,4 +1030,21 @@ fn line_intersection_to_z_plane(origin: Vec3, p: Vec3, z: f32) -> Vec3 {
     let v = p - origin;
     let t = (z - Vec3::Z.dot(origin)) / Vec3::Z.dot(v);
     origin + t * v
+}
+
+pub fn sort_cluster_assigned_objects_condition(
+    render_device: Res<RenderDevice>,
+    mut cached: Local<Option<bool>>,
+) -> bool {
+    if let Some(cache) = *cached {
+        cache
+    } else {
+        let clustered_forward_buffer_binding_type = render_device
+            .get_supported_read_only_binding_type(CLUSTERED_FORWARD_STORAGE_BUFFER_COUNT);
+        let supports_storage_buffers = matches!(
+            clustered_forward_buffer_binding_type,
+            BufferBindingType::Storage { .. }
+        );
+        *cached.insert(!supports_storage_buffers)
+    }
 }

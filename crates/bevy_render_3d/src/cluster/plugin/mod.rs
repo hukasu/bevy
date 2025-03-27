@@ -13,8 +13,7 @@ use bevy_math::{ops, Mat4, Vec2, Vec3A};
 use bevy_render::{
     camera::CameraUpdateSystem,
     primitives::{Aabb, Sphere},
-    render_resource::{BufferBindingType, Shader},
-    renderer::RenderDevice,
+    render_resource::Shader,
     view::{RenderLayers, VisibilitySystems},
     ExtractSchedule, Render, RenderApp, RenderSet,
 };
@@ -22,12 +21,13 @@ use bevy_transform::{components::GlobalTransform, TransformSystem};
 
 use super::{
     clusterable_objects::{GlobalClusterableObjectMeta, GlobalVisibleClusterableObjects},
-    ClusterConfig, CLUSTERED_FORWARD_STORAGE_BUFFER_COUNT,
+    ClusterConfig,
 };
 
 use systems::{
     add_clusters, cluster_assignment, extract_clusters, post_cluster_assignment,
     pre_cluster_assignment, prepare_clusters, sort_cluster_assigned_objects,
+    sort_cluster_assigned_objects_condition,
 };
 
 pub const CLUSTERED_FORWARD_HANDLE: Handle<Shader> =
@@ -100,23 +100,14 @@ impl Plugin for ClusterPlugin {
             ),
         );
 
-        if let Some(render_device) = app.world().get_resource::<RenderDevice>() {
-            let clustered_forward_buffer_binding_type = render_device
-                .get_supported_read_only_binding_type(CLUSTERED_FORWARD_STORAGE_BUFFER_COUNT);
-            let supports_storage_buffers = matches!(
-                clustered_forward_buffer_binding_type,
-                BufferBindingType::Storage { .. }
-            );
-            if !supports_storage_buffers {
-                app.add_systems(
-                    PostUpdate,
-                    sort_cluster_assigned_objects
-                        .in_set(ClusterSystems::AssignLightsToClusters)
-                        .after(pre_cluster_assignment)
-                        .before(post_cluster_assignment),
-                );
-            }
-        }
+        app.add_systems(
+            PostUpdate,
+            sort_cluster_assigned_objects
+                .in_set(ClusterSystems::AssignLightsToClusters)
+                .after(pre_cluster_assignment)
+                .before(post_cluster_assignment)
+                .run_if(sort_cluster_assigned_objects_condition),
+        );
 
         if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app
