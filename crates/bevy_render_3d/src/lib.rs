@@ -20,7 +20,7 @@ pub mod lightmap;
 pub mod material;
 pub mod mesh_pipeline;
 #[cfg(feature = "meshlet")]
-pub mod meshlet;
+mod meshlet;
 pub mod morph;
 pub mod prepass;
 pub mod render_method;
@@ -48,6 +48,18 @@ use bevy_render::{
 
 use light_probe::MAX_VIEW_LIGHT_PROBES;
 use mesh_pipeline::render::{pipeline::MeshPipelineKey, MeshLayouts};
+
+/// Experimental features that are not yet finished. Please report any issues you encounter!
+///
+/// Expect bugs, missing features, compatibility issues, low performance, and/or future breaking changes.
+#[cfg(feature = "meshlet")]
+pub mod experimental {
+    /// Render high-poly 3d meshes using an efficient GPU-driven method.
+    /// See [`MeshletPlugin`](meshlet::MeshletPlugin) and [`MeshletMesh`](meshlet::MeshletMesh) for details.
+    pub mod meshlet {
+        pub use crate::meshlet::*;
+    }
+}
 
 pub struct Render3dPluginGroup {
     debug_flags: RenderDebugFlags,
