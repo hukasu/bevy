@@ -50,13 +50,12 @@ use crate::{
         render::{
             instance::{RenderMeshInstanceFlags, RenderMeshInstances},
             pipeline::MeshPipelineKey,
-            RenderMeshMaterialIds,
+            RenderMeshMaterialIds, ViewKeyCache,
         },
         render_method::OpaqueRendererMethod,
         specialization::{
             EntitiesNeedingSpecialization, EntitySpecializationTicks, ViewSpecializationTicks,
         },
-        ViewKeyCache,
     },
 };
 

@@ -2,7 +2,7 @@
 
 pub mod commands;
 pub mod graph;
-pub(crate) mod render;
+pub mod render;
 pub mod render_method;
 pub(crate) mod specialization;
 mod systems;
@@ -14,12 +14,7 @@ use bevy_core_pipeline::{
     deferred::{AlphaMask3dDeferred, Opaque3dDeferred},
     oit::prepare_oit_buffers,
 };
-use bevy_derive::{Deref, DerefMut};
-use bevy_ecs::{
-    resource::Resource,
-    schedule::{IntoScheduleConfigs, SystemSet},
-};
-use bevy_platform_support::collections::HashMap;
+use bevy_ecs::schedule::{IntoScheduleConfigs, SystemSet};
 use bevy_render::{
     batching::{
         gpu_preprocessing::{self, GpuPreprocessingSupport},
@@ -30,7 +25,6 @@ use bevy_render::{
     render_phase::{BinnedRenderPhasePlugin, SortedRenderPhasePlugin},
     render_resource::{GpuArrayBuffer, Shader, ShaderDefVal},
     renderer::RenderDevice,
-    view::RetainedViewEntity,
     ExtractSchedule, Render, RenderApp, RenderDebugFlags, RenderSet,
 };
 
@@ -41,9 +35,9 @@ use crate::{
 
 use render::{
     instance::{RenderMeshInstanceGpuQueues, RenderMeshInstances},
-    pipeline::{MeshPipeline, MeshPipelineKey, MeshPipelineViewLayouts},
+    pipeline::{MeshPipeline, MeshPipelineViewLayouts},
     MeshCullingDataBuffer, MeshInputUniform, MeshUniform, MeshesToReextractNextFrame,
-    RenderMeshMaterialIds,
+    RenderMeshMaterialIds, ViewKeyCache,
 };
 use render_method::DefaultOpaqueRendererMethod;
 use specialization::ViewSpecializationTicks;
@@ -305,6 +299,3 @@ pub struct ExtractMeshesSet;
 /// A [`SystemSet`] that encompass [`collect_meshes_for_gpu_building`]
 #[derive(SystemSet, Clone, PartialEq, Eq, Debug, Hash)]
 pub struct GpuMeshBuildingSet;
-
-#[derive(Resource, Deref, DerefMut, Default, Debug, Clone)]
-pub struct ViewKeyCache(HashMap<RetainedViewEntity, MeshPipelineKey>);

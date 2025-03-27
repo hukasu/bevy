@@ -84,10 +84,9 @@ use super::{
         },
         MeshBindGroupPair, MeshBindGroups, MeshCullingData, MeshCullingDataBuffer, MeshFlags,
         MeshInputUniform, MeshPhaseBindGroups, MeshTransforms, MeshUniform, MeshViewBindGroup,
-        MeshesToReextractNextFrame, RenderMeshMaterialIds,
+        MeshesToReextractNextFrame, RenderMeshMaterialIds, ViewKeyCache,
     },
     specialization::ViewSpecializationTicks,
-    ViewKeyCache,
 };
 
 /// All the data that we need from a mesh in the main world.

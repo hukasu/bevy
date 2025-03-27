@@ -16,6 +16,7 @@ use bevy_render::{
     },
     renderer::{RenderAdapter, RenderDevice},
     sync_world::{MainEntity, MainEntityHashMap, MainEntityHashSet},
+    view::RetainedViewEntity,
 };
 use bevy_transform::components::GlobalTransform;
 use bevy_utils::TypeIdMap;
@@ -1039,3 +1040,6 @@ mod entry {
         }
     }
 }
+
+#[derive(Resource, Deref, DerefMut, Default, Debug, Clone)]
+pub(crate) struct ViewKeyCache(HashMap<RetainedViewEntity, MeshPipelineKey>);
