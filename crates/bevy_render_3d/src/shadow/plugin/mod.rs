@@ -1,0 +1,67 @@
+mod systems;
+
+use core::{hash::Hash, marker::PhantomData};
+
+use bevy_app::Plugin;
+use bevy_ecs::schedule::IntoScheduleConfigs;
+use bevy_render::{
+    render_phase::{AddRenderCommand, DrawFunctions},
+    Render, RenderApp, RenderSet,
+};
+
+use crate::{
+    light::plugin::LightSystems,
+    material::{plugin::MaterialRenderSystems, Material},
+    prepass::commands::DrawPrepass,
+};
+
+use super::{phase_item::Shadow, render::SpecializedShadowMaterialPipelineCache};
+
+use systems::{queue_shadows, specialize_shadows};
+
+pub struct ShadowPlugin<M: Material>(PhantomData<M>);
+
+impl<M: Material> Default for ShadowPlugin<M> {
+    fn default() -> Self {
+        Self(PhantomData)
+    }
+}
+
+impl<M: Material> Plugin for ShadowPlugin<M>
+where
+    M::Data: Clone + Eq + Hash,
+{
+    fn build(&self, app: &mut bevy_app::App) {
+        if !app.is_plugin_added::<BaseShadowPlugin>() {
+            app.add_plugins(BaseShadowPlugin);
+        }
+
+        if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
+            render_app.add_render_command::<Shadow, DrawPrepass<M>>();
+
+            render_app
+                .init_resource::<SpecializedShadowMaterialPipelineCache<M>>()
+                .add_systems(
+                    Render,
+                    (
+                        // specialize_shadows::<M> also needs to run after prepare_assets::<PreparedMaterial<M>>,
+                        // which is fine since ManageViews is after PrepareAssets
+                        specialize_shadows::<M>
+                            .in_set(RenderSet::ManageViews)
+                            .after(LightSystems::Prepare),
+                        queue_shadows::<M>.in_set(MaterialRenderSystems::QueueMeshes),
+                    ),
+                );
+        }
+    }
+}
+
+struct BaseShadowPlugin;
+
+impl Plugin for BaseShadowPlugin {
+    fn build(&self, app: &mut bevy_app::App) {
+        if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
+            render_app.init_resource::<DrawFunctions<Shadow>>();
+        }
+    }
+}
