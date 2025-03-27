@@ -12,6 +12,8 @@ use bevy_reflect::{prelude::ReflectDefault, Reflect};
 
 use tracing::warn;
 
+pub use clusterable_objects::GlobalClusterableObjectMeta;
+
 // Clustered-forward rendering notes
 // The main initial reference material used was this rather accessible article:
 // http://www.aortiz.me/2018/12/21/CG.html
