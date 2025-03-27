@@ -56,7 +56,7 @@ impl Plugin for ClusteredDecalPlugin {
             (app.world().get_resource(), app.world().get_resource())
         {
             // Add decals if the current platform supports them.
-            if clustered_decals_are_usable(&render_device, &render_adapter) {
+            if clustered_decals_are_usable(render_device, render_adapter) {
                 app.add_plugins(ClusterableObjectPlugin::<4, ClusteredDecal>::default());
             }
         }

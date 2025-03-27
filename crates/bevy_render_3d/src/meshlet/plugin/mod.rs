@@ -258,10 +258,18 @@ impl Plugin for MeshletPlugin {
     }
 }
 
-#[derive(Default)]
 pub struct RenderMeshletPlugin<M: Material> {
     prepass_enabled: bool,
     _data: PhantomData<M>,
+}
+
+impl<M: Material> Default for RenderMeshletPlugin<M> {
+    fn default() -> Self {
+        Self {
+            prepass_enabled: false,
+            _data: PhantomData,
+        }
+    }
 }
 
 impl<M: Material> Plugin for RenderMeshletPlugin<M>

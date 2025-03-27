@@ -14,6 +14,8 @@ use bevy_render::{
     ExtractSchedule, Render, RenderApp, RenderDebugFlags, RenderSet,
 };
 
+#[cfg(feature = "meshlet")]
+use crate::meshlet::plugin::RenderMeshletPlugin;
 use crate::{
     mesh_pipeline::{
         specialization::{EntitiesNeedingSpecialization, EntitySpecializationTicks},
@@ -95,8 +97,8 @@ where
                     .after(mark_3d_meshes_as_changed_if_their_assets_changed),
             );
 
-        // #[cfg(feature = "meshlet")]
-        // app.add_plugins(meshlet::RenderMeshletPlugin::<M>::default());
+        #[cfg(feature = "meshlet")]
+        app.add_plugins(RenderMeshletPlugin::<M>::default());
 
         if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app.configure_sets(
