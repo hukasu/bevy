@@ -36,9 +36,11 @@ use bevy_render::{
 use bytemuck::Pod;
 
 use crate::{
-    mesh_pipeline::render::pipeline::{MeshPipeline, MeshPipelineKey},
+    mesh_pipeline::{
+        render::pipeline::{MeshPipeline, MeshPipelineKey},
+        render_method::{DefaultOpaqueRendererMethod, OpaqueRendererMethod},
+    },
     prepass::commands::DrawPrepass,
-    render_method::{DefaultOpaqueRendererMethod, OpaqueRendererMethod},
 };
 
 use super::{

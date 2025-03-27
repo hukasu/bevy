@@ -54,9 +54,12 @@ use crate::{
         self, MaterialBindGroupAllocator, MaterialPipeline, MaterialPipelineKey, PreparedMaterial,
         RenderMaterialBindings, RenderMaterialInstances,
     },
-    mesh_pipeline::render::{
-        pipeline::{tonemapping_pipeline_key, MeshPipeline, MeshPipelineKey},
-        RenderMeshMaterialIds,
+    mesh_pipeline::{
+        render::{
+            pipeline::{tonemapping_pipeline_key, MeshPipeline, MeshPipelineKey},
+            RenderMeshMaterialIds,
+        },
+        render_method::OpaqueRendererMethod,
     },
     meshlet::{
         render::{
@@ -67,7 +70,6 @@ use crate::{
         MeshletMesh, MeshletMesh3d,
     },
     prepass::{render::PrepassPipeline, PreviousGlobalTransform},
-    render_method::OpaqueRendererMethod,
     shadow::{render::ShadowView, ShadowFilteringMethod},
     ssao::ScreenSpaceAmbientOcclusion,
 };

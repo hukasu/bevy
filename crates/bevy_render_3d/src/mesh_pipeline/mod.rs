@@ -3,6 +3,7 @@
 pub mod commands;
 pub mod graph;
 pub(crate) mod render;
+pub mod render_method;
 pub(crate) mod specialization;
 mod systems;
 
@@ -25,17 +26,12 @@ use bevy_render::{
         no_gpu_preprocessing,
     },
     extract_component::ExtractComponentPlugin,
+    extract_resource::ExtractResourcePlugin,
     render_phase::{BinnedRenderPhasePlugin, SortedRenderPhasePlugin},
     render_resource::{GpuArrayBuffer, Shader, ShaderDefVal},
     renderer::RenderDevice,
     view::RetainedViewEntity,
     ExtractSchedule, Render, RenderApp, RenderDebugFlags, RenderSet,
-};
-use render::{
-    instance::{RenderMeshInstanceGpuQueues, RenderMeshInstances},
-    pipeline::{MeshPipeline, MeshPipelineKey, MeshPipelineViewLayouts},
-    MeshCullingDataBuffer, MeshInputUniform, MeshUniform, MeshesToReextractNextFrame,
-    RenderMeshMaterialIds,
 };
 
 use crate::{
@@ -43,6 +39,13 @@ use crate::{
     shadow::{phase_item::Shadow, ShadowFilteringMethod},
 };
 
+use render::{
+    instance::{RenderMeshInstanceGpuQueues, RenderMeshInstances},
+    pipeline::{MeshPipeline, MeshPipelineKey, MeshPipelineViewLayouts},
+    MeshCullingDataBuffer, MeshInputUniform, MeshUniform, MeshesToReextractNextFrame,
+    RenderMeshMaterialIds,
+};
+use render_method::DefaultOpaqueRendererMethod;
 use specialization::ViewSpecializationTicks;
 use systems::{
     check_views_need_specialization, collect_meshes_for_gpu_building,
@@ -164,6 +167,10 @@ impl Plugin for MeshRenderPlugin {
             SortedRenderPhasePlugin::<Transmissive3d, MeshPipeline>::new(self.debug_flags),
             SortedRenderPhasePlugin::<Transparent3d, MeshPipeline>::new(self.debug_flags),
         ));
+
+        app.register_type::<DefaultOpaqueRendererMethod>()
+            .init_resource::<DefaultOpaqueRendererMethod>()
+            .add_plugins(ExtractResourcePlugin::<DefaultOpaqueRendererMethod>::default());
 
         if let Some(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app

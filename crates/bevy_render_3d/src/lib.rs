@@ -23,7 +23,6 @@ pub mod mesh_pipeline;
 mod meshlet;
 pub mod morph;
 pub mod prepass;
-pub mod render_method;
 pub mod shadow;
 pub mod skin;
 pub mod ssao;

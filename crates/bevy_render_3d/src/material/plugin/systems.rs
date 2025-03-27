@@ -52,12 +52,12 @@ use crate::{
             pipeline::MeshPipelineKey,
             RenderMeshMaterialIds,
         },
+        render_method::OpaqueRendererMethod,
         specialization::{
             EntitiesNeedingSpecialization, EntitySpecializationTicks, ViewSpecializationTicks,
         },
         ViewKeyCache,
     },
-    render_method::OpaqueRendererMethod,
 };
 
 use super::{Material, MeshMaterial3d};

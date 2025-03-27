@@ -25,7 +25,7 @@ pub(crate) use material::{
 };
 pub use material::{MaterialPipeline, MaterialPipelineKey, PreparedMaterial};
 
-use crate::render_method::OpaqueRendererMethod;
+use crate::mesh_pipeline::render_method::OpaqueRendererMethod;
 
 /// Materials are used alongside [`MaterialPlugin`], [`Mesh3d`], and [`MeshMaterial3d`]
 /// to spawn entities that are rendered with a specific [`Material`] type. They serve as an easy to use high level

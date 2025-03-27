@@ -43,6 +43,7 @@ use crate::{
             instance::{RenderMeshInstanceFlags, RenderMeshInstances},
             pipeline::MeshPipelineKey,
         },
+        render_method::OpaqueRendererMethod,
         specialization::EntitySpecializationTicks,
     },
     prepass::{
@@ -52,7 +53,6 @@ use crate::{
         },
         PreviousGlobalTransform,
     },
-    render_method::OpaqueRendererMethod,
     shadow::render::ShadowView,
 };
 
