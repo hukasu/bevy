@@ -63,6 +63,25 @@ pub mod experimental {
     }
 }
 
+pub mod prelude {
+    pub use super::atmosphere::{Atmosphere, AtmosphereSettings};
+    pub use super::decal::{ClusteredDecal, ForwardDecal};
+    pub use super::distance_fog::{DistanceFog, FogFalloff};
+    pub use super::extended_material::{ExtendedMaterial, MaterialExtension};
+    pub use super::light::{AmbientLight, DirectionalLight, PointLight, SpotLight};
+    pub use super::light_probe::{EnvironmentMapLight, IrradianceVolume, LightProbe};
+    pub use super::lightmap::Lightmap;
+    pub use super::material::{Material, MeshMaterial3d};
+    #[cfg(feature = "meshlet")]
+    pub mod experimental {
+        pub use crate::meshlet::{MeshletMesh, MeshletMesh3d};
+    }
+    pub use super::shadow::ShadowFilteringMethod;
+    pub use super::ssao::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityLevel};
+    pub use super::ssr::ScreenSpaceReflections;
+    pub use super::volumetric_fog::{FogVolume, VolumetricFog, VolumetricLight};
+}
+
 pub struct Render3dPluginGroup {
     debug_flags: RenderDebugFlags,
 }
