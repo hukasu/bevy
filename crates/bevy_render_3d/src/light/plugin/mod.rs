@@ -27,9 +27,10 @@ use super::{
 };
 
 use systems::{
-    check_dir_light_mesh_visibility, check_light_entities_needing_specialization,
-    check_point_light_mesh_visibility, check_views_lights_need_specialization,
-    clear_directional_light_cascades, extract_lights, prepare_lights,
+    add_light_view_entities, build_directional_light_cascades, check_dir_light_mesh_visibility,
+    check_light_entities_needing_specialization, check_point_light_mesh_visibility,
+    check_views_lights_need_specialization, clear_directional_light_cascades, extract_lights,
+    extracted_light_removed, prepare_lights, remove_light_view_entities,
     update_directional_light_frusta, update_point_light_frusta, update_spot_light_frusta,
 };
 
@@ -119,6 +120,13 @@ impl Plugin for BaseLightPlugin {
             ClusterableObjectPlugin::<1, SpotLight>::default(),
         ));
 
+        app.add_systems(
+            PostUpdate,
+            build_directional_light_cascades
+                .in_set(SimulationLightSystems::UpdateDirectionalLightCascades)
+                .after(clear_directional_light_cascades),
+        );
+
         app.configure_sets(
             PostUpdate,
             SimulationLightSystems::UpdateDirectionalLightCascades
@@ -137,6 +145,12 @@ impl Plugin for BaseLightPlugin {
                     .in_set(RenderSet::ManageViews)
                     .after(sort_cameras),
             );
+
+            render_app.world_mut().add_observer(add_light_view_entities);
+            render_app
+                .world_mut()
+                .add_observer(remove_light_view_entities);
+            render_app.world_mut().add_observer(extracted_light_removed);
 
             if self.shadows_enabled {
                 render_app
