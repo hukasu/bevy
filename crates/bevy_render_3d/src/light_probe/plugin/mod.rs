@@ -11,7 +11,7 @@ use bevy_render::{
 };
 
 use crate::{
-    cluster::plugin::{ClusterableObjectPlugin, CLUSTERED_FORWARD_STORAGE_BUFFER_COUNT},
+    cluster::{plugin::ClusterableObjectPlugin, CLUSTERED_FORWARD_STORAGE_BUFFER_COUNT},
     light_probe::{EnvironmentMapLight, IrradianceVolume},
 };
 
