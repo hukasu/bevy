@@ -55,5 +55,20 @@ impl Plugin for TransformPlugin {
                 .chain()
                 .in_set(PropagateTransformsSet),
         );
+
+        #[cfg(feature = "std")]
+        app.init_resource::<super::systems::PropagationRoot>()
+            .add_systems(
+                PostStartup,
+                super::systems::get_propagation_roots
+                    .before(propagate_parent_transforms)
+                    .in_set(PropagateTransformsSet),
+            )
+            .add_systems(
+                PostUpdate,
+                super::systems::get_propagation_roots
+                    .before(propagate_parent_transforms)
+                    .in_set(PropagateTransformsSet),
+            );
     }
 }
