@@ -2,7 +2,7 @@ use alloc::{boxed::Box, vec};
 use core::any::Any;
 
 use crate::{
-    component::{ComponentId, Mutable, StorageType},
+    component::ComponentId,
     error::{ErrorContext, ErrorHandler},
     lifecycle::{ComponentHook, HookContext},
     observer::{ObserverDescriptor, ObserverTrigger},
@@ -188,6 +188,8 @@ pub type ObserverRunner = fn(DeferredWorld, ObserverTrigger, PtrMut, propagate: 
 /// serves as the "source of truth" of the observer.
 ///
 /// [`SystemParam`]: crate::system::SystemParam
+#[derive(Component)]
+#[component(storage = "SparseSet", on_add = Self::on_add_hook, on_remove = Self::on_remove_hook)]
 pub struct Observer {
     hook_on_add: ComponentHook,
     error_handler: Option<ErrorHandler>,
@@ -296,34 +298,27 @@ impl Observer {
     pub fn descriptor(&self) -> &ObserverDescriptor {
         &self.descriptor
     }
-}
 
-impl Component for Observer {
-    const STORAGE_TYPE: StorageType = StorageType::SparseSet;
-    type Mutability = Mutable;
-    fn on_add() -> Option<ComponentHook> {
-        Some(|world, context| {
-            let Some(observe) = world.get::<Self>(context.entity) else {
-                return;
-            };
-            let hook = observe.hook_on_add;
-            hook(world, context);
-        })
+    fn on_add_hook(world: DeferredWorld, context: HookContext) {
+        let Some(observe) = world.get::<Self>(context.entity) else {
+            return;
+        };
+        let hook = observe.hook_on_add;
+        hook(world, context);
     }
-    fn on_remove() -> Option<ComponentHook> {
-        Some(|mut world, HookContext { entity, .. }| {
-            let descriptor = core::mem::take(
-                &mut world
-                    .entity_mut(entity)
-                    .get_mut::<Self>()
-                    .unwrap()
-                    .as_mut()
-                    .descriptor,
-            );
-            world.commands().queue(move |world: &mut World| {
-                world.unregister_observer(entity, descriptor);
-            });
-        })
+
+    fn on_remove_hook(mut world: DeferredWorld, HookContext { entity, .. }: HookContext) {
+        let descriptor = core::mem::take(
+            &mut world
+                .entity_mut(entity)
+                .get_mut::<Self>()
+                .unwrap()
+                .as_mut()
+                .descriptor,
+        );
+        world.commands().queue(move |world: &mut World| {
+            world.unregister_observer(entity, descriptor);
+        });
     }
 }
 
