@@ -160,3 +160,71 @@ pub fn despawn_entities_on_enter_state<S: States>(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use bevy_app::App;
+    use bevy_ecs::entity_disabling::Disabled;
+
+    use crate::{
+        app::{AppExtStates, StatesPlugin},
+        prelude::CommandsStatesExt,
+    };
+
+    /// Tests that [`DespawnOnExit`] and [`DespawnOnExit`] properly despawns
+    /// an entity that has a disabling component.
+    ///
+    /// # Note
+    /// Currently there is no query filter to allow all disabling components, so
+    /// there is only a guarantee for [`Disabled`].
+    /// <https://github.com/bevyengine/bevy/issues/21615>
+    #[test]
+    fn despawn_on_enter_exit_on_disabled_entity() {
+        #[derive(Component)]
+        struct AltDisabled;
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, States)]
+        enum State {
+            On,
+            Off,
+        }
+
+        let mut app = App::new();
+        app.add_plugins(StatesPlugin);
+        app.register_disabling_component::<AltDisabled>();
+
+        app.insert_state(State::On);
+        app.update();
+
+        let disabled_exit = app
+            .world_mut()
+            .spawn((DespawnOnExit(State::On), Disabled))
+            .id();
+        let alt_disabled_exit = app
+            .world_mut()
+            .spawn((DespawnOnExit(State::On), AltDisabled))
+            .id();
+        let disabled_enter = app
+            .world_mut()
+            .spawn((DespawnOnEnter(State::Off), Disabled))
+            .id();
+        let alt_disabled_enter = app
+            .world_mut()
+            .spawn((DespawnOnEnter(State::Off), AltDisabled))
+            .id();
+
+        assert!(app.world().get_entity(disabled_exit).is_ok());
+        assert!(app.world().get_entity(alt_disabled_exit).is_ok());
+        assert!(app.world().get_entity(disabled_enter).is_ok());
+        assert!(app.world().get_entity(alt_disabled_enter).is_ok());
+
+        app.world_mut().commands().set_state(State::Off);
+        app.update();
+
+        assert!(app.world().get_entity(disabled_exit).is_err());
+        // TODO assert!(app.world().get_entity(alt_disabled_exit).is_err());
+        assert!(app.world().get_entity(disabled_enter).is_err());
+        // TODO assert!(app.world().get_entity(alt_disabled_enter).is_err());
+    }
+}
